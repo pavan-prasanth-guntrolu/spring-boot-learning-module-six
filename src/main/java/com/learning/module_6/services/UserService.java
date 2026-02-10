@@ -9,6 +9,7 @@ import com.learning.module_6.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,6 +36,10 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User with email"+ userId +"Not found"));
     }
 
+    public UserEntity getUserByEmail(String email){
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
     public UserDTO signup(SignupDTO signupDTO) {
         Optional<UserEntity> userEntity=userRepository.findByEmail(signupDTO.getEmail());
         if(userEntity.isPresent()){
@@ -49,5 +54,8 @@ public class UserService implements UserDetailsService {
     }
 
 
+    public UserEntity save(UserEntity newUser) {
+        return userRepository.save(newUser);
+    }
 }
 
