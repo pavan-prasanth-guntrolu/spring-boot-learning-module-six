@@ -6,6 +6,7 @@ import com.learning.module_6.handlers.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +14,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import static com.learning.module_6.entities.enums.Role.ADMIN;
 
 @Configuration
 @EnableWebSecurity
@@ -22,14 +25,19 @@ public class WebSecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
+    private static final String[] publicRoutes={
+         "/error","/auth/**","/home.html"
+    };
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity
                 .authorizeHttpRequests(auth->
                         auth
-                                .requestMatchers("/posts","/error","/auth/**","/home.html").permitAll()
-//                                .requestMatchers("/posts/**").authenticated()
+                                .requestMatchers(publicRoutes).permitAll()
+                                .requestMatchers(HttpMethod.GET).permitAll()
+                                .requestMatchers(HttpMethod.POST,"/posts/**").hasRole(ADMIN.name())
                                 .anyRequest().authenticated())
                 .csrf(csrfConfig->csrfConfig.disable())
                 .sessionManagement(sessionConfig->
